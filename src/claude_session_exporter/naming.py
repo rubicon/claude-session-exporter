@@ -24,7 +24,7 @@ def derive_title(first_user_text: str | None, created: str | None) -> str:
 
 
 def slugify(title: str) -> str:
-    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")
+    slug = re.sub(r"\W+", "-", title.lower()).strip("-")
     return slug or "untitled"
 
 
@@ -36,3 +36,12 @@ def output_path(output_dir: Path, session: Session, title: str, created: str | N
     date = (created or "")[:10] or "0000-00-00"
     filename = f"{date}_{slugify(title)}.md"
     return output_dir / session.source_type / _safe_component(session.project) / filename
+
+
+def disambiguate(base: Path, session_id: str, taken: set[str]) -> Path:
+    if str(base) not in taken:
+        return base
+    short = base.with_name(f"{base.stem}_{session_id[:8]}{base.suffix}")
+    if str(short) not in taken:
+        return short
+    return base.with_name(f"{base.stem}_{session_id}{base.suffix}")

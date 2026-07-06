@@ -43,6 +43,13 @@ class Manifest:
         entry = self._entry(session_id)
         return entry.get("output_path") if entry else None
 
+    def claimed_paths(self, exclude_session_id: str) -> set[str]:
+        return {
+            e["output_path"]
+            for sid, e in self._data["sessions"].items()
+            if sid != exclude_session_id and e.get("output_path")
+        }
+
     def update(self, session: Session, output_path: Path, title: str) -> None:
         self._data["sessions"][session.session_id] = {
             "source_file": str(session.source_file),

@@ -96,11 +96,12 @@ def config_cmd(
         cfg = config.set_output(set_output, path)
         typer.echo(f"output_dir set to {cfg.output_dir}")
         return
-    cfg = config.load(path)
-    typer.echo(
-        f"output_dir = {cfg.output_dir}\nsources = {cfg.sources}\n"
-        f"emoji_headers = {cfg.emoji_headers}\ninclude_subagents = {cfg.include_subagents}"
-    )
+    if show or not set_output:
+        cfg = config.load(path)
+        typer.echo(
+            f"output_dir = {cfg.output_dir}\nsources = {cfg.sources}\n"
+            f"emoji_headers = {cfg.emoji_headers}\ninclude_subagents = {cfg.include_subagents}"
+        )
 
 
 # Register the config command under the name "config" (avoids shadowing the module).

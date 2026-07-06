@@ -79,3 +79,34 @@ def test_title_change_renames_old_file(tmp_path):
     exporter.export([s], out)
     new = out / "cowork" / "skills-plugin" / "2026-07-06_second-title.md"
     assert new.exists() and not old.exists()
+
+
+def test_filename_collision_gets_disambiguated(tmp_path):
+    out = tmp_path / "out"
+    s1 = _make_session(tmp_path, sid="11111111-aaaa-bbbb-cccc-111111111111", text="Same title")
+    s2 = _make_session(tmp_path, sid="22222222-aaaa-bbbb-cccc-222222222222", text="Same title")
+    report = exporter.export([s1, s2], out)
+    assert not report.failed
+
+    base = out / "cowork" / "skills-plugin" / "2026-07-06_same-title.md"
+    suffixed = out / "cowork" / "skills-plugin" / "2026-07-06_same-title_22222222.md"
+    assert base.exists()
+    assert suffixed.exists()
+    assert base.read_text(encoding="utf-8") != suffixed.read_text(encoding="utf-8")
+    assert "session_id: 11111111-aaaa-bbbb-cccc-111111111111" in base.read_text(encoding="utf-8")
+    assert "session_id: 22222222-aaaa-bbbb-cccc-222222222222" in suffixed.read_text(
+        encoding="utf-8"
+    )
+
+    # re-running is stable: no new suffix churn, same filenames reused.
+    report2 = exporter.export([s1, s2], out)
+    assert report2.skipped == [s1.session_id, s2.session_id]
+    assert base.exists()
+    assert suffixed.exists()
+    stray = (
+        out
+        / "cowork"
+        / "skills-plugin"
+        / "2026-07-06_same-title_22222222-aaaa-bbbb-cccc-222222222222.md"
+    )
+    assert not stray.exists()
