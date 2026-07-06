@@ -16,6 +16,10 @@ This is a public GitHub repository (`rubicon/claude-session-exporter`). Agent wo
 - Implementation plan: `docs/superpowers/plans/2026-07-06-claude-session-exporter-core-cli.md` (task-by-task, issue/branch grouping, file structure).
 - Module map and layering: see `ARCHITECTURE.md`.
 
+## Rewriting history (gotcha)
+
+GitHub verifies an SSH commit signature only when the **committer** email owns the signing key. Squash-merges stamp committer `noreply@github.com` (GitHub-signed, verified). If you rewrite history, set the committer to `98216+rubicon@users.noreply.github.com` and re-sign (`git commit-tree -S`), or commits show unverified (`unknown_key`). Force-pushing protected `main` requires lifting branch protection then restoring it.
+
 ## Verification baseline
 
 ```bash
