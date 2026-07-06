@@ -12,11 +12,11 @@ COWORK_ROOT = (
     Path.home() / "Library" / "Application Support" / "Claude" / "local-agent-mode-sessions"
 )
 
-_SESSION_RE = re.compile(r"^(?!audit\.jsonl$|agent-).+\.jsonl$")
+_UUID_RE = re.compile(r"^[0-9a-fA-F-]{36}\.jsonl$")
 
 
 def _is_transcript(path: Path) -> bool:
-    return bool(_SESSION_RE.match(path.name))
+    return bool(_UUID_RE.match(path.name))
 
 
 def _subagents_for(transcript: Path) -> list[Path]:

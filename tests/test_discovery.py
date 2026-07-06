@@ -18,12 +18,12 @@ def _cc_session(root: Path, project_enc: str, sid: str, cwd: str):
 
 def test_find_claude_code(tmp_path):
     cc = tmp_path / "claude" / "projects"
-    _cc_session(cc, "-Users-dax-proj", "1111", "/Users/dax/proj")
+    _cc_session(cc, "-Users-dax-proj", "11111111-1111-1111-1111-111111111111", "/Users/dax/proj")
     sessions = discovery.find(["claude-code"], roots={"claude-code": cc})
     assert len(sessions) == 1
     s = sessions[0]
     assert s.source_type == "claude-code"
-    assert s.session_id == "1111"
+    assert s.session_id == "11111111-1111-1111-1111-111111111111"
     assert s.project == "proj"
     assert s.mtime > 0 and s.size > 0
 
@@ -34,10 +34,10 @@ def test_find_cowork_project_is_space_and_attaches_subagents(tmp_path):
         base / "skills-plugin" / "org1" / "local_aaa" / ".claude" / "projects" / "-enc-output-x"
     )
     sess_dir.mkdir(parents=True)
-    (sess_dir / "2222.jsonl").write_text(
+    (sess_dir / "22222222-2222-2222-2222-222222222222.jsonl").write_text(
         json.dumps({"type": "mode", "cwd": "/sandbox/outputs"}) + "\n", encoding="utf-8"
     )
-    subs = sess_dir / "2222" / "subagents"
+    subs = sess_dir / "22222222-2222-2222-2222-222222222222" / "subagents"
     subs.mkdir(parents=True)
     (subs / "agent-abc.jsonl").write_text(
         json.dumps({"type": "user", "message": {"content": "sub"}}) + "\n", encoding="utf-8"
@@ -60,3 +60,14 @@ def test_audit_and_agent_files_are_not_sessions(tmp_path):
     (d / "audit.jsonl").write_text("{}\n", encoding="utf-8")
     (d / "agent-xyz.jsonl").write_text("{}\n", encoding="utf-8")
     assert discovery.find(["cowork"], roots={"cowork": base}) == []
+
+
+def test_only_uuid_named_transcripts_are_sessions(tmp_path):
+    d = tmp_path / "cc" / "-Users-dax-proj"
+    d.mkdir(parents=True)
+    rec = json.dumps({"type": "mode", "cwd": "/Users/dax/proj"}) + "\n"
+    for name in ["notes.jsonl", "agent-x.jsonl", "audit.jsonl", "Agent-Y.jsonl"]:
+        (d / name).write_text(rec, encoding="utf-8")
+    (d / "12345678-1234-1234-1234-123456789abc.jsonl").write_text(rec, encoding="utf-8")
+    sessions = discovery.find(["claude-code"], roots={"claude-code": tmp_path / "cc"})
+    assert [s.session_id for s in sessions] == ["12345678-1234-1234-1234-123456789abc"]
