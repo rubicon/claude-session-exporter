@@ -32,3 +32,28 @@ def test_output_path_mirrors_source():
     )
     p = naming.output_path(Path("/out"), s, "My Title", "2026-07-06T10:00:00Z")
     assert p == Path("/out/cowork/skills-plugin/2026-07-06_my-title.md")
+
+
+def test_slugify_preserves_cjk():
+    slug = naming.slugify("会议纪要：季度回顾")
+    assert slug != "untitled"
+    assert "会议" in slug
+
+
+def test_disambiguate_no_collision_returns_base():
+    base = Path("/o/a.md")
+    assert naming.disambiguate(base, "abcd1234-ef00", set()) == base
+
+
+def test_disambiguate_collision_uses_short_id_suffix():
+    base = Path("/o/a.md")
+    taken = {str(base)}
+    result = naming.disambiguate(base, "abcd1234-ef00", taken)
+    assert result == Path("/o/a_abcd1234.md")
+
+
+def test_disambiguate_double_collision_uses_full_session_id():
+    base = Path("/o/a.md")
+    taken = {str(base), str(Path("/o/a_abcd1234.md"))}
+    result = naming.disambiguate(base, "abcd1234-ef00", taken)
+    assert result == Path("/o/a_abcd1234-ef00.md")

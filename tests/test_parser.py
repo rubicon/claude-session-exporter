@@ -62,3 +62,23 @@ def test_empty_file_yields_no_messages(tmp_path):
     p = tmp_path / "e.jsonl"
     p.write_text("", encoding="utf-8")
     assert parser.parse(p) == []
+
+
+def test_tool_result_null_content_does_not_render_none(tmp_path):
+    p = _write(
+        tmp_path,
+        [
+            {
+                "type": "assistant",
+                "timestamp": "2026-07-06T10:00:00Z",
+                "message": {
+                    "content": [
+                        {"type": "tool_result", "content": None},
+                    ]
+                },
+            },
+        ],
+    )
+    msgs = parser.parse(p)
+    assert len(msgs) == 1
+    assert not any("None" in n for n in msgs[0].tool_notes)

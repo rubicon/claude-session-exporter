@@ -10,8 +10,13 @@ _LABELS_PLAIN = {"user": "You", "assistant": "Claude"}
 _LABELS_EMOJI = {"user": "🧑 You", "assistant": "🤖 Claude"}
 
 
+def _yaml_str(value) -> str:
+    s = str(value)
+    return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
 def _fmt_ts(ts: str | None) -> str:
-    if not ts:
+    if not ts or not isinstance(ts, str):
         return ""
     try:
         dt = datetime.fromisoformat(ts.replace("Z", "+00:00")).astimezone()
@@ -49,18 +54,18 @@ def render(
 
     front = [
         "---",
-        f"title: {title}",
+        f"title: {_yaml_str(title)}",
         f"session_id: {session.session_id}",
         f"source_type: {session.source_type}",
-        f"project: {session.project}",
-        f"project_path: {session.project_path}",
+        f"project: {_yaml_str(session.project)}",
+        f"project_path: {_yaml_str(session.project_path)}",
         f"created: {created or ''}",
         f"updated: {updated or ''}",
         f"message_count: {len(messages)}",
         f"user_messages: {n_user}",
         f"assistant_messages: {n_asst}",
         f"subagent_count: {len(subagents)}",
-        f"source_file: {session.source_file}",
+        f"source_file: {_yaml_str(session.source_file)}",
         f"exporter_version: {__version__}",
         "---",
     ]

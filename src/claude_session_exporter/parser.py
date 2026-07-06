@@ -28,7 +28,7 @@ def _extract(content) -> tuple[str, list[str]]:
                     inp = inp[:_TOOL_INPUT_MAX] + "…"
                 notes.append(f"tool call `{part.get('name', '?')}` — {inp}")
             elif ptype == "tool_result":
-                body = part.get("content", "")
+                body = part.get("content") or ""
                 if isinstance(body, list):
                     body = " ".join(x.get("text", "") for x in body if isinstance(x, dict))
                 body = str(body).strip().replace("\n", " ")

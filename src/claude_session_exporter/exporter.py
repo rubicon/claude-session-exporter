@@ -33,6 +33,7 @@ def export(
 ) -> Report:
     report = Report()
     manifest = Manifest.load(output_dir)
+    written: set[str] = set()
 
     for session in sessions:
         state = "updated" if force else manifest.classify(session)
@@ -53,7 +54,11 @@ def export(
                 updated=facts["updated"],
                 emoji=emoji,
             )
-            new_path = naming.output_path(output_dir, session, title, facts["created"])
+            base = naming.output_path(output_dir, session, title, facts["created"])
+            final = naming.disambiguate(
+                base, session.session_id, manifest.claimed_paths(session.session_id) | written
+            )
+            written.add(str(final))
 
             if dry_run:
                 (report.updated if state == "updated" else report.exported).append(
@@ -62,12 +67,12 @@ def export(
                 continue
 
             old = manifest.output_path_for(session.session_id)
-            if old and old != str(new_path):
+            if old and old != str(final):
                 Path(old).unlink(missing_ok=True)
 
-            new_path.parent.mkdir(parents=True, exist_ok=True)
-            new_path.write_text(markdown, encoding="utf-8")
-            manifest.update(session, new_path, title)
+            final.parent.mkdir(parents=True, exist_ok=True)
+            final.write_text(markdown, encoding="utf-8")
+            manifest.update(session, final, title)
             (report.updated if state == "updated" else report.exported).append(session.session_id)
         except Exception as exc:  # isolate per-session failures
             report.failed.append((session.session_id, str(exc)))

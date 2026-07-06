@@ -66,3 +66,19 @@ def test_render_emoji_mode():
         emoji=True,
     )
     assert "🧑 You" in out and "🤖 Claude" not in out  # only user turn present
+
+
+def test_render_escapes_title_in_frontmatter():
+    out = renderer.render(
+        _session(),
+        [Message("user", None, "hi")],
+        [],
+        title="Fix: the parser breaks",
+        created=None,
+        updated=None,
+    )
+    assert 'title: "Fix: the parser breaks"' in out
+
+
+def test_fmt_ts_rejects_non_str():
+    assert renderer._fmt_ts(12345) == ""
