@@ -1,0 +1,35 @@
+[project]
+name = "claude-session-exporter"
+version = "0.1.0"
+description = "Export Claude Code and cowork sessions to Markdown"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Dax Davis" }]
+dependencies = ["typer>=0.12", "tomli-w>=1.0"]
+
+[project.scripts]
+claude-session-exporter = "claude_session_exporter.cli:app"
+cse = "claude_session_exporter.cli:app"
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "black>=24", "ruff>=0.5"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/claude_session_exporter"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
