@@ -1,0 +1,54 @@
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      # The rest of the job is skipped until the App credential secret exists,
+      # so merging this workflow before automation is configured is a green no-op.
+      - name: Check automation is configured
+        id: guard
+        env:
+          OP_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+        run: |
+          if [ -z "$OP_TOKEN" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Release automation is not configured yet (OP_SERVICE_ACCOUNT_TOKEN is unset). Skipping. See docs/RELEASE_AUTOMATION.md."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Load App credentials from 1Password
+        if: steps.guard.outputs.configured == 'true'
+        id: op
+        uses: 1password/load-secrets-action@v2
+        with:
+          export-env: false
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          APP_ID: op://Automation/release-please-app/app-id
+          APP_PRIVATE_KEY: op://Automation/release-please-app/private-key
+
+      - name: Mint a GitHub App token
+        if: steps.guard.outputs.configured == 'true'
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ steps.op.outputs.APP_ID }}
+          private-key: ${{ steps.op.outputs.APP_PRIVATE_KEY }}
+
+      - name: Run release-please
+        if: steps.guard.outputs.configured == 'true'
+        uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
