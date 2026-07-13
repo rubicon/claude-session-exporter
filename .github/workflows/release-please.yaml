@@ -40,7 +40,7 @@ jobs:
       - name: Mint a GitHub App token
         if: steps.guard.outputs.configured == 'true'
         id: app-token
-        uses: actions/create-github-app-token@v1
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ steps.op.outputs.APP_ID }}
           private-key: ${{ steps.op.outputs.APP_PRIVATE_KEY }}
