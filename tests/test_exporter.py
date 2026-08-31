@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 import json
+
 from claude_session_exporter import exporter
 from claude_session_exporter.models import Session
 
