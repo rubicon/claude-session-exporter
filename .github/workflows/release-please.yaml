@@ -34,8 +34,8 @@ jobs:
           export-env: false
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          APP_ID: "op://Automation/rubicon-release-please-private-key/app id"
-          APP_PRIVATE_KEY: "op://Automation/rubicon-release-please-private-key/private key"
+          APP_ID: "op://Automation/rubicon_release_please_private_key/app id"
+          APP_PRIVATE_KEY: "op://Automation/rubicon_release_please_private_key/private key"
 
       - name: Mint a GitHub App token
         if: steps.guard.outputs.configured == 'true'
