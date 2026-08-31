@@ -23,12 +23,16 @@ one. Credentials are pulled at run time from 1Password, so no App key is stored 
    and generate a **private key** (`.pem`).
 
 2. **Store the App credentials in 1Password**, in a shared `Automation` vault, as an item named
-   `release-please-app` with two fields:
-   - `app-id` — the numeric App ID.
-   - `private-key` — the full `.pem`. Put it in a **Notes field or file attachment**, not a single-line
-     text field, or the newlines flatten and the key will not parse. Verify with:
-     `op read "op://Automation/release-please-app/private-key" | openssl rsa -noout -check`
+   `rubicon_release_please_private_key` with two fields:
+   - `app id` — the numeric App ID.
+   - `private key` — the full `.pem`. Store it somewhere that preserves newlines, such as an SSH Key
+     item's key field, a notes field, or a file attachment. A single-line text field flattens the
+     newlines and the key will not parse. Verify with:
+     `op read "op://Automation/rubicon_release_please_private_key/private key" | openssl rsa -noout -check`
      (never print the key itself).
+
+   The item and field names above are the literal strings the workflow resolves, so they have to match
+   the vault exactly, separators included.
 
 3. **Create a 1Password service account** scoped **read-only** to the `Automation` vault, with an
    expiry. Add its token as the repo secret `OP_SERVICE_ACCOUNT_TOKEN`:
@@ -38,8 +42,9 @@ one. Credentials are pulled at run time from 1Password, so no App key is stored 
    token carries the permissions, and the workflow requests `contents: write` / `pull-requests: write`
    at the job level.
 
-Once the secret exists, the next push to `main` activates release-please. The first release PR proposes
-`0.1.0` (the manifest starts at `0.0.0`, and the `feat` history bumps the minor version pre-1.0).
+Once the secret exists, the next push to `main` activates release-please. It reads the current version
+from `.release-please-manifest.json` and proposes the next one from the Conventional Commits since that
+release.
 
 ## Rotating credentials
 
