@@ -1,8 +1,8 @@
 # SPDX-License-Identifier: MIT
 from __future__ import annotations
 
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -20,10 +20,9 @@ def _filter(sessions: list[Session], projects, since, until) -> list[Session]:
         # date filter on session activity (mtime → date is coarse; use file mtime day)
         out.append(s)
     if since or until:
-        from datetime import datetime, timezone
 
         def day(ts: float) -> str:
-            return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d")
+            return datetime.fromtimestamp(ts, tz=UTC).strftime("%Y-%m-%d")
 
         out = [
             s
@@ -33,7 +32,7 @@ def _filter(sessions: list[Session], projects, since, until) -> list[Session]:
     return out
 
 
-def _resolve(cfg_path: Optional[str], sources, output):
+def _resolve(cfg_path: str | None, sources, output):
     cfg = config.load(Path(cfg_path) if cfg_path else None)
     use_sources = sources or cfg.sources
     out_dir = Path(output).expanduser() if output else cfg.output_dir
