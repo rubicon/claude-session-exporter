@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 from pathlib import Path
+
 from claude_session_exporter import naming
 from claude_session_exporter.models import Session
 

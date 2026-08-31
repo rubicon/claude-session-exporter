@@ -15,7 +15,7 @@ class Manifest:
         self._data = data
 
     @classmethod
-    def load(cls, output_dir: Path) -> "Manifest":
+    def load(cls, output_dir: Path) -> Manifest:
         path = output_dir / MANIFEST_NAME
         if path.exists():
             try:
