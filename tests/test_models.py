@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: MIT
 from pathlib import Path
-from claude_session_exporter.models import Message, Subagent, Session, Report
+
+from claude_session_exporter.models import Message, Report, Session, Subagent
 
 
 def test_defaults():
