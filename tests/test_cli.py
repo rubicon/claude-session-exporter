@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: MIT
 import json
 from pathlib import Path
+
 from typer.testing import CliRunner
+
 from claude_session_exporter.cli import app
 
 runner = CliRunner()
