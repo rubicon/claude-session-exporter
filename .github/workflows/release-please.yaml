@@ -34,7 +34,7 @@ jobs:
           export-env: false
         env:
           OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
-          APP_ID: "op://Automation/lnacky4l2tmlihrockbutkub7y/app id"
+          CLIENT_ID: "op://Automation/lnacky4l2tmlihrockbutkub7y/client id"
           APP_PRIVATE_KEY: "op://Automation/lnacky4l2tmlihrockbutkub7y/private key"
 
       - name: Mint a GitHub App token
@@ -42,7 +42,7 @@ jobs:
         id: app-token
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ steps.op.outputs.APP_ID }}
+          client-id: ${{ steps.op.outputs.CLIENT_ID }}
           private-key: ${{ steps.op.outputs.APP_PRIVATE_KEY }}
 
       - name: Run release-please
