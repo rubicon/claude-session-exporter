@@ -22,17 +22,21 @@ one. Credentials are pulled at run time from 1Password, so no App key is stored 
    `Pull requests: read and write`. Install it on `rubicon/claude-session-exporter`. Note its **App ID**
    and generate a **private key** (`.pem`).
 
-2. **Store the App credentials in 1Password**, in a shared `Automation` vault, as an item named
-   `rubicon_release_please_private_key` with two fields:
+2. **Store the App credentials in 1Password**, in a shared `Automation` vault, as an item with two
+   fields:
    - `app id` — the numeric App ID.
    - `private key` — the full `.pem`. Store it somewhere that preserves newlines, such as an SSH Key
      item's key field, a notes field, or a file attachment. A single-line text field flattens the
      newlines and the key will not parse. Verify with:
-     `op read "op://Automation/rubicon_release_please_private_key/private key" | openssl rsa -noout -check`
+     `op read "op://Automation/lnacky4l2tmlihrockbutkub7y/private key" | openssl rsa -noout -check`
      (never print the key itself).
 
-   The item and field names above are the literal strings the workflow resolves, so they have to match
-   the vault exactly, separators included.
+   The workflow addresses the item by UUID, `lnacky4l2tmlihrockbutkub7y`, not by title. A title is a
+   mutable label: rename the item and every repo pinning it by title stops resolving, silently, because
+   the service account still authenticates. A UUID survives renames and is not a secret. Look up an
+   item's UUID with `op item get "<title>" --vault Automation --format json | jq -r '.id'`.
+   The two field labels above are literal strings and still have to match the vault exactly, spaces
+   included.
 
 3. **Create a 1Password service account** scoped **read-only** to the `Automation` vault, with an
    expiry. Add its token as the repo secret `OP_SERVICE_ACCOUNT_TOKEN`:
